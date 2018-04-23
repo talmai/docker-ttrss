@@ -1,53 +1,42 @@
 #!/usr/bin/env php
 <?php
 
-$confpath = '/var/www/config.php';
+$confpath = '/var/www/html/ttrss/config.php';
 
 $config = array();
 
 // path to ttrss
 $config['SELF_URL_PATH'] = env('SELF_URL_PATH', 'http://localhost');
 
+// database type and port
 if (getenv('DB_TYPE') !== false) {
     $config['DB_TYPE'] = getenv('DB_TYPE');
-} elseif (getenv('DB_PORT_5432_TCP_ADDR') !== false) {
-    // postgres container linked
-    $config['DB_TYPE'] = 'pgsql';
-    $eport = 5432;
-} elseif (getenv('DB_PORT_3306_TCP_ADDR') !== false) {
-    // mysql container linked
-    $config['DB_TYPE'] = 'mysql';
-    $eport = 3306;
+} else {
+    error('The env DB_TYPE does not exist. Can run with either "mysql" or "pgsql"');
 }
 
-if (!empty($eport)) {
-    $config['DB_HOST'] = env('DB_PORT_' . $eport . '_TCP_ADDR');
-    $config['DB_PORT'] = env('DB_PORT_' . $eport . '_TCP_PORT');
-} elseif (getenv('DB_PORT') === false) {
-    error('The env DB_PORT does not exist. Make sure to run with "--link mypostgresinstance:DB"');
-} elseif (is_numeric(getenv('DB_PORT')) && getenv('DB_HOST') !== false) {
-    // numeric DB_PORT provided; assume port number passed directly
-    $config['DB_HOST'] = env('DB_HOST');
-    $config['DB_PORT'] = env('DB_PORT');
-
-    if (empty($config['DB_TYPE'])) {
-        switch ($config['DB_PORT']) {
-            case 3306:
-                $config['DB_TYPE'] = 'mysql';
-                break;
-            case 5432:
-                $config['DB_TYPE'] = 'pgsql';
-                break;
-            default:
-                error('Database on non-standard port ' . $config['DB_PORT'] . ' and env DB_TYPE not present');
-        }
+if (empty($config['DB_PORT'])) {
+    switch ($config['DB_TYPE']) {
+        case 'mysql':
+            $eport = 3306;
+            break;
+        case 'pgsql':
+            $eport = 5432;
+            break;
+        default:
+            error('Database is neither mysql or pgsql, and DB_PORT is not present');
     }
+} else {
+    $config['DB_PORT'] = getenv('DB_PORT');
 }
+
 
 // database credentials for this instance
+//   database host (DB_HOST) can be supplied or detaults to "localhost"
 //   database name (DB_NAME) can be supplied or detaults to "ttrss"
 //   database user (DB_USER) can be supplied or defaults to database name
 //   database pass (DB_PASS) can be supplied or defaults to database user
+$config['DB_HOST'] = env('DB_HOST', 'localhost');
 $config['DB_NAME'] = env('DB_NAME', 'ttrss');
 $config['DB_USER'] = env('DB_USER', $config['DB_NAME']);
 $config['DB_PASS'] = env('DB_PASS', $config['DB_USER']);
@@ -61,8 +50,8 @@ if (!dbcheck($config)) {
     $super = $config;
 
     $super['DB_NAME'] = null;
-    $super['DB_USER'] = env('DB_ENV_USER', 'docker');
-    $super['DB_PASS'] = env('DB_ENV_PASS', $super['DB_USER']);
+    $super['DB_USER'] = $config['DB_USER'];
+    $super['DB_PASS'] = $config['DB_PASS'];
     
     $pdo = dbconnect($super);
 
@@ -132,7 +121,7 @@ function dbconnect($config)
             $dsn .= $d . '=' . $config['DB_' . $h] . ';';
         }
     }
-    $pdo = new \PDO($dsn, $config['DB_USER'], $config['DB_PASS']);
+    $pdo = new PDO($dsn, $config['DB_USER'], $config['DB_PASS']);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     return $pdo;
 }

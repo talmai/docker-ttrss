@@ -1,9 +1,6 @@
 # docker-ttrss
 
-This [Docker](https://www.docker.com) image allows you to run the [Tiny Tiny RSS](http://tt-rss.org) feed reader.
-Keep your feed history to yourself and access your RSS and atom feeds from everywhere.
-You can access it through an easy to use webinterface on your desktop, your mobile browser
-or using one of the available apps.
+This [Docker](https://www.docker.com) image allows you to run the [Tiny Tiny RSS](http://tt-rss.org) feed reader. An image is available as a [trusted build on the docker index](https://hub.docker.com/r/talmai/docker-ttrss/).
 
 ## About Tiny Tiny RSS
 
@@ -18,136 +15,53 @@ Web-based news feed aggregator, designed to allow you to read news from any loca
 This section assumes you want to get started quickly, the following sections explain the
 steps in more detail. So let's start.
 
-Just start up a new database container:
+Build your docker image:
 
 ```bash
-$ docker run -d --name ttrssdb nornagon/postgres
+$ make
 ```
 
-And because this docker image is available as a [trusted build on the docker index](https://index.docker.io/u/clue/ttrss/),
-using it is as simple as launching this Tiny Tiny RSS installation linked to your fresh database:
+If your docker hub is not configured for automated builds, push it via:
 
 ```bash
-$ docker run -d --link ttrssdb:db -p 80:80 clue/ttrss
+$ make push
 ```
 
-Running this command for the first time will download the image automatically.
-
-## Accessing your webinterface
-
-The above example exposes the Tiny Tiny RSS webinterface on port 80, so that you can browse to:
-
-http://localhost/
-
-The default login credentials are:
-
-* Username: admin
-* Password: password
-
-Obviously, you're recommended to change these as soon as possible.
-
-## Installation Walkthrough
-
-Having trouble getting the above to run?
-This is the detailed installation walkthrough.
-If you've already followed the [quickstart](#quickstart) guide and everything works, you can skip this part.
-
-### Select database
-
-This container requires a PostgreSQL or MySQL database instance.
-
-Following docker's best practices, this container does not contain its own database,
-but instead expects you to supply a running instance.
-While slightly more complicated at first, this gives your more freedom as to which
-database instance and configuration you're relying on.
-Also, this makes this container quite disposable, as it doesn't store any sensitive
-information at all.
-
-#### PostgreSQL container
-
-The recommended way to run this container is by linking it to a PostgreSQL database instance.
-You're free to pick (or build) any PostgreSQL container, as long as it exposes
-its database port (5432) to the outside.
-
-Example with nornagon/postgres:
+The assumption is that you have a database service/container running somewhere. For example:
 
 ```bash
-$ docker run -d --name=tinydatabase nornagon/postgres:latest
+$ docker run -d --name ttrssdb postgres
 ```
 
-> The image nornagon/postgres exposes a database superuser that this image uses
-to automatically create its user and database,
-so you don't have to setup your database credentials here.
-
-Use the following database options when running the container:
-
-```
---link tinydatabase:db
-```
-
-#### MySQL container
-
-If you'd like to use ttrss with a mysql database backend, simply link it to a
-mysql container instead.
-You're free to pick (or build) any MySQL container, as long as it exposes
-its database port (3306) to the outside.
-
-Example with sameersbn/mysql:
+Using it is as simple as launching this Tiny Tiny RSS installation linked to your fresh database:
 
 ```bash
-$ docker run -d --name=tinydatabase -e DB_USER=ttrss -e DB_PASS=ttrss -e DB_NAME=ttrss sameersbn/mysql:latest
+$ docker run -d --link ttrssdb:db -p 80:80 talmai/docker-ttrss -e DB_TYPE=pgsql
 ```
 
-> The image sameersbn/mysql does not expose a database superuser,
-so you have to explicitly pass the database credentials here.
+Running this command for the first time will download the images automatically.
 
-Use the following database options when running the container:
+## Allowed parameters
 
-```
---link tinydatabase:db
-```
+You can specify the following parameters:
 
-#### External database server
-
-If you already have a PostgreSQL or MySQL server around off docker you also can go with that.
-Instead of linking docker containers you need to provide database hostname and port like so:
-
-```
--e DB_HOST=172.17.42.1
--e DB_PORT=3306
-```
-
-### Database configuration
-
-Whenever your run ttrss, it will check your database setup. It assumes the following
-default configuration, which can be changed by passing the following additional arguments:
-
-```
--e DB_NAME=ttrss
--e DB_USER=ttrss
--e DB_PASS=ttrss
-```
-
-If your database is exposed on a non-standard port you also need to provide DB_TYPE set
-to either "pgsql" or "mysql".
+### Database type
 
 ```
 -e DB_TYPE=pgsql
 -e DB_TYPE=mysql
 ```
 
-### Database superuser
+TT-RSS only runs on PostgreSQL (9.1 or newer) or MySQL (InnoDB is required). 
 
-When you run ttrss, it will check your database setup. If it can not connect using the above
-configuration, it will automatically try to create a new database and user.
-
-For this to work, it will need a superuser account that is permitted to create a new database
-and user. It assumes the following default configuration, which can be changed by passing the
-following additional arguments:
+### Database Configuration
 
 ```
--e DB_ENV_USER=docker
--e DB_ENV_PASS=docker
+-e DB_PORT="<database port>" ( defaults to 3306/mysql and 5432/pgsql)
+-e DB_HOST=<database host> (defaults to 'localhost')
+-e DB_NAME="<database name>" (defaults to "ttrss")
+-e DB_USER="<database username>" (defaults to $DB_NAME)
+-e DB_PASS="<database password>" (defaults to $DB_USER)
 ```
 
 ### SELF_URL_PATH
@@ -162,28 +76,21 @@ For more information check out the [official documentation](https://github.com/g
 -e SELF_URL_PATH=https://example.org/ttrss
 ```
 
-### Testing ttrss in foreground
+## Accessing your webinterface
 
-For testing purposes it's recommended to initially start this container in foreground.
-This is particular useful for your initial database setup, as errors get reported to
-the console and further execution will halt.
+The above example exposes the Tiny Tiny RSS webinterface on port 80, so that you can browse to:
 
-```bash
-$ docker run -it --link tinydatabase:db -p 80:80 clue/ttrss
-```
+http://localhost/
 
-### Running ttrss daemonized
+The default login credentials are:
 
-Once you've confirmed everything works in the foreground, you can start your container
-in the background by replacing the `-it` argument with `-d` (daemonize).
-Remaining arguments can be passed just like before, the following is the recommended
-minimum:
+* Username: admin
+* Password: password
 
-```bash
-$ docker run -d --link tinydatabase:db -p 80:80 clue/ttrss
-```
+Obviously, you're recommended to change these as soon as possible.
 
-### Original LICENSE notes
+
+### Original/Forked License notes
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
