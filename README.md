@@ -7,7 +7,7 @@ or using one of the available apps.
 
 ## About Tiny Tiny RSS
 
-> *From [the official readme](http://tt-rss.org/redmine/projects/tt-rss/wiki):*
+> *From [the official readme](https://git.tt-rss.org/fox/tt-rss/src/master/README.md):*
 
 Web-based news feed aggregator, designed to allow you to read news from any location, while feeling as close to a real desktop application as possible.
 
