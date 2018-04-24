@@ -36,7 +36,7 @@ $ docker run -d --name ttrssdb postgres
 Using it is as simple as launching this Tiny Tiny RSS installation linked to your fresh database:
 
 ```bash
-$ docker run -d --link ttrssdb:db -p 80:80 talmai/docker-ttrss -e DB_TYPE=pgsql
+$ docker run -d --link ttrssdb:db -p 80:5000 talmai/docker-ttrss -e DB_TYPE=pgsql
 ```
 
 Running this command for the first time will download the images automatically.

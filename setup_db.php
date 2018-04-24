@@ -1,7 +1,7 @@
 #!/usr/bin/env php
 <?php
 
-$confpath = '/var/www/html/ttrss/config.php';
+$confpath = '/app/htdocs/config.php';
 
 $config = array();
 
@@ -79,7 +79,7 @@ try {
 }
 catch (PDOException $e) {
     echo 'Database table not found, applying schema... ' . PHP_EOL;
-    $schema = file_get_contents('/var/www/html/ttrss/schema/ttrss_schema_' . $config['DB_TYPE'] . '.sql');
+    $schema = file_get_contents('/app/htdocs/schema/ttrss_schema_' . $config['DB_TYPE'] . '.sql');
     $schema = preg_replace('/--(.*?);/', '', $schema);
     $schema = preg_replace('/[\r\n]/', ' ', $schema);
     $schema = trim($schema, ' ;');
