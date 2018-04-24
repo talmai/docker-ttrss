@@ -57,23 +57,23 @@ TT-RSS only runs on PostgreSQL (9.1 or newer) or MySQL (InnoDB is required).
 ### Database Configuration
 
 ```
--e DB_PORT="<database port>" ( defaults to 3306/mysql and 5432/pgsql)
+-e DB_PORT="<database port>" (defaults to 5432. Installation ports are 3306/mysql and 5432/pgsql)
 -e DB_HOST=<database host> (defaults to 'localhost')
 -e DB_NAME="<database name>" (defaults to "ttrss")
 -e DB_USER="<database username>" (defaults to $DB_NAME)
 -e DB_PASS="<database password>" (defaults to $DB_USER)
 ```
 
-### SELF_URL_PATH
+### HOST_URL
 
-The `SELF_URL_PATH` config value should be set to the URL where this TinyTinyRSS
+The `HOST_URL` config value should be set to the URL where this TinyTinyRSS
 will be accessible at. Setting it correctly will enable PUSH support and make
 the browser integration work. Default value: `http://localhost`.
 
 For more information check out the [official documentation](https://github.com/gothfox/Tiny-Tiny-RSS/blob/master/config.php-dist#L22).
 
 ```
--e SELF_URL_PATH=https://example.org/ttrss
+-e HOST_URL=https://example.org/ttrss
 ```
 
 ## Accessing your webinterface

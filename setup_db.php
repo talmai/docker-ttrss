@@ -6,7 +6,7 @@ $confpath = '/var/www/html/ttrss/config.php';
 $config = array();
 
 // path to ttrss
-$config['SELF_URL_PATH'] = env('SELF_URL_PATH', 'http://localhost');
+$config['HOST_URL'] = env('HOST_URL', 'http://localhost');
 
 // database type and port
 if (getenv('DB_TYPE') !== false) {
@@ -79,7 +79,7 @@ try {
 }
 catch (PDOException $e) {
     echo 'Database table not found, applying schema... ' . PHP_EOL;
-    $schema = file_get_contents('schema/ttrss_schema_' . $config['DB_TYPE'] . '.sql');
+    $schema = file_get_contents('/var/www/html/ttrss/schema/ttrss_schema_' . $config['DB_TYPE'] . '.sql');
     $schema = preg_replace('/--(.*?);/', '', $schema);
     $schema = preg_replace('/[\r\n]/', ' ', $schema);
     $schema = trim($schema, ' ;');
