@@ -1,5 +1,4 @@
 FROM php:7-fpm-alpine
-MAINTAINER Talmai Oliveira <to@talm.ai>
 
 RUN set -ex \
   && apk --no-cache add \
