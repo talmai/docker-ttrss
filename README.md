@@ -1,5 +1,8 @@
 # docker-ttrss
 
+[![Docker Pulls](https://img.shields.io/docker/pulls/talmai/docker-ttrss.svg)](https://hub.docker.com/r/talmai/docker-ttrss/)
+[![Docker Stars](https://img.shields.io/docker/stars/talmai/docker-ttrss.svg)](https://hub.docker.com/r/talmai/docker-ttrss/)
+
 This [Docker](https://www.docker.com) image allows you to run the [Tiny Tiny RSS](http://tt-rss.org) feed reader. An image is available as a [trusted build on the docker index](https://hub.docker.com/r/talmai/docker-ttrss/).
 
 ## About Tiny Tiny RSS
